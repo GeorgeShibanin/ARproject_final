@@ -33,7 +33,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
-    implementation 'com.google.ar.sceneform.ux:sceneform-ux:1.15.0'
+    implementation 'com.google.ar.sceneform.ux:sceneform-ux:1.5.0'
     implementation 'com.karumi:dexter:5.0.0'
 }
 
@@ -44,7 +44,8 @@ sceneform.asset('sampledata/pc2_model.obj',
         'sampledata/pc2_model.sfa',
         'src/main/res/raw/pc2_model')
 
-sceneform.asset('sampledata/cup_model.obj',
+
+sceneform.asset('sampledata/dino.fbx',
         'default',
-        'sampledata/cup_model.sfa',
-        'src/main/res/raw/cup_model')
+        'sampledata/dino.sfa',
+        'src/main/res/raw/dino')

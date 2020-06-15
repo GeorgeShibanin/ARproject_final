@@ -85,11 +85,9 @@ public class MainActivity extends AppCompatActivity implements Scene.OnUpdateLis
                 e.printStackTrace();
             } catch (UnavailableSdkTooOldException e) {
                 e.printStackTrace();
-            } catch (UnavailableDeviceNotCompatibleException e) {
-                e.printStackTrace();
             }
             shouldConfigureSession = true;
-            
+
         }
         if(shouldConfigureSession) {
             configSession();
@@ -148,8 +146,8 @@ public class MainActivity extends AppCompatActivity implements Scene.OnUpdateLis
 
                 //HEREaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 
-                if(Scriptpy.main(image)) {
-                    MyARNode node = new MyARNode(this, R.raw.cup_model);
+                if(image.getName().equals("photo")) {
+                    MyARNode node = new MyARNode(this, R.raw.pc2_model);
                     node.setImage(image);
                     arView.getScene().addChild(node);
                 }
