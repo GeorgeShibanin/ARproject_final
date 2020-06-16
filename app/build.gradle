@@ -49,3 +49,10 @@ sceneform.asset('sampledata/dino.fbx',
         'default',
         'sampledata/dino.sfa',
         'src/main/res/raw/dino')
+
+
+
+sceneform.asset('sampledata/video_screen.obj',
+        'sampledata/material.mat',
+        'sampledata/video_screen.sfa',
+        'src/main/res/raw/video_screen')

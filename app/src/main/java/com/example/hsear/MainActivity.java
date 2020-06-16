@@ -1,15 +1,20 @@
 package com.example.hsear;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 
 import android.renderscript.Script;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.ar.core.Anchor;
 import com.google.ar.core.AugmentedImage;
 import com.google.ar.core.AugmentedImageDatabase;
 import com.google.ar.core.Config;
@@ -21,9 +26,14 @@ import com.google.ar.core.exceptions.UnavailableApkTooOldException;
 import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
 import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
+import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.ArSceneView;
 import com.google.ar.sceneform.FrameTime;
 import com.google.ar.sceneform.Scene;
+import com.google.ar.sceneform.math.Vector3;
+import com.google.ar.sceneform.rendering.Color;
+import com.google.ar.sceneform.rendering.ExternalTexture;
+import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
@@ -40,6 +50,11 @@ public class MainActivity extends AppCompatActivity implements Scene.OnUpdateLis
     private ArSceneView arView;
     private Session session;
     private boolean shouldConfigureSession=false;
+    private TextView textView;
+    private ExternalTexture texture;
+    private MediaPlayer mediaPlayer;
+    private Scene scene;
+    private ModelRenderable videorend;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +63,16 @@ public class MainActivity extends AppCompatActivity implements Scene.OnUpdateLis
 
         //View
         arView = (ArSceneView)findViewById(R.id.arView);
+
+        textView = findViewById(R.id.textView);
+
+        texture = new ExternalTexture();
+
+        mediaPlayer = MediaPlayer.create(this, R.raw.video);
+        mediaPlayer.setSurface(texture.getSurface());
+        mediaPlayer.setLooping(true);
+
+
         //Request  permission
         Dexter.withActivity(this)
                 .withPermission(Manifest.permission.CAMERA)
@@ -72,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements Scene.OnUpdateLis
     }
 
     private void initSceneView() {
-        arView.getScene().addOnUpdateListener(this);
+        arView.getScene().addOnUpdateListener(this::onUpdate);
     }
 
     private void setupSession() {
@@ -116,24 +141,18 @@ public class MainActivity extends AppCompatActivity implements Scene.OnUpdateLis
 
     private boolean buildDatabase(Config config) {
         AugmentedImageDatabase augmentedImageDatabase;
-        Bitmap bitmap = loadImage();
-        if(bitmap == null)
-            return false;
 
-        augmentedImageDatabase = new AugmentedImageDatabase(session);
-        augmentedImageDatabase.addImage("photo", bitmap);
-        config.setAugmentedImageDatabase(augmentedImageDatabase);
-        return true;
-    }
-
-    private Bitmap loadImage() {
         try {
-            InputStream is = getAssets().open("pc_photo.jpeg");
-            return BitmapFactory.decodeStream(is);
+            InputStream inputStream = getAssets().open("imageDB.imgdb");
+            augmentedImageDatabase = AugmentedImageDatabase.deserialize(session, inputStream);
+            config.setAugmentedImageDatabase(augmentedImageDatabase);
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
-        return null;
+
+
     }
 
     @Override
@@ -144,15 +163,49 @@ public class MainActivity extends AppCompatActivity implements Scene.OnUpdateLis
         for(AugmentedImage image:updateAugmentedImg) {
             if(image.getTrackingState() == TrackingState.TRACKING) {
 
-                //HEREaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-
-                if(image.getName().equals("photo")) {
+                if(image.getName().equals("pcImage.jpg")) {
+                    textView.setText("pc model is visible");
                     MyARNode node = new MyARNode(this, R.raw.pc2_model);
                     node.setImage(image);
                     arView.getScene().addChild(node);
+                    break;
+                } else if(image.getName().equals("dinoImage.jpg")) {
+                    textView.setText("dino is visible");
+                    MyARNode node = new MyARNode(this, R.raw.dino);
+                    node.setImage(image);
+                    arView.getScene().addChild(node);
+                    break;
+                } else if(image.getName().equals("delorian.jpg")) {
+                    textView.setText("Video");
+                    ModelRenderable
+                            .builder()
+                            .setSource(this, R.raw.video_screen)
+                            .build()
+                            .thenAccept(modelRenderable -> {
+                                modelRenderable.getMaterial().setExternalTexture("videoTexture", texture);
+                                modelRenderable.getMaterial().setFloat4("keycolor", new Color(0.01843f, 1f,0.098f));
+
+                                videorend = modelRenderable;
+                            });
+                    playVideo (image.createAnchor(image.getCenterPose()), image.getExtentX(), image.getExtentZ());
+                    break;
                 }
+
             }
         }
+    }
+
+    private void playVideo(Anchor anchor, float extentX, float extentZ) {
+        mediaPlayer.start();
+        AnchorNode anchorNode = new AnchorNode(anchor);
+        texture.getSurfaceTexture().setOnFrameAvailableListener(surfaceTexture -> {
+            anchorNode.setRenderable(videorend);
+            texture.getSurfaceTexture().setOnFrameAvailableListener(null);
+        });
+
+        anchorNode.setWorldScale(new Vector3(extentX, 1f, extentZ));
+
+        arView.getScene().addChild(anchorNode);
     }
 
     @Override

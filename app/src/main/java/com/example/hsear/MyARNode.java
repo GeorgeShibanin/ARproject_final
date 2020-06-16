@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 public class MyARNode extends AnchorNode {
 
     private AugmentedImage image;
-    private static CompletableFuture<ModelRenderable> modelRenderableCompletableFuture;
+    private CompletableFuture<ModelRenderable> modelRenderableCompletableFuture;
 
     public MyARNode (Context context, int modelId){
         if (modelRenderableCompletableFuture == null) {
