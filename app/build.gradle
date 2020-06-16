@@ -43,9 +43,3 @@ sceneform.asset('sampledata/pc2_model.obj',
         'default',
         'sampledata/pc2_model.sfa',
         'src/main/res/raw/pc2_model')
-
-
-sceneform.asset('sampledata/dino.fbx',
-        'default',
-        'sampledata/dino.sfa',
-        'src/main/res/raw/dino')
