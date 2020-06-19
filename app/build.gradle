@@ -38,7 +38,6 @@ dependencies {
 }
 
 
-
 sceneform.asset('sampledata/pc2_model.obj',
         'default',
         'sampledata/pc2_model.sfa',
@@ -49,7 +48,6 @@ sceneform.asset('sampledata/dino.fbx',
         'default',
         'sampledata/dino.sfa',
         'src/main/res/raw/dino')
-
 
 
 sceneform.asset('sampledata/video_screen.obj',

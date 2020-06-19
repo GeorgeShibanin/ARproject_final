@@ -13,12 +13,21 @@
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="123dp"
+        android:layout_width="86dp"
         android:layout_height="wrap_content"
-        android:background="#000000"
+        android:background="#9B90F9"
         android:padding="8dp"
-        android:textColor="#ffffff" />
+        android:textAlignment="center"
+        android:textColor="#000000" />
 
+    <Button
+        android:id="@+id/serializeBtn"
+        android:layout_width="162dp"
+        android:layout_height="37dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/btnstyle"
+        android:elevation="15dp"
+        android:text="Serialize" />
 
 
 </FrameLayout>

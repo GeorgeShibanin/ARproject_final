@@ -41,6 +41,9 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -53,8 +56,13 @@ public class MainMenu extends AppCompatActivity implements Scene.OnUpdateListene
     private TextView textView;
     private ExternalTexture texture;
     private MediaPlayer mediaPlayer;
-    private Scene scene;
     private ModelRenderable videorend;
+    int flag = 0;
+    int cnt = 0;
+    private Config config;
+    AugmentedImageDatabase augmentedImageDatabase;
+    String pathtoImage;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +79,19 @@ public class MainMenu extends AppCompatActivity implements Scene.OnUpdateListene
         mediaPlayer = MediaPlayer.create(this, R.raw.video);
         mediaPlayer.setSurface(texture.getSurface());
         mediaPlayer.setLooping(true);
+        pathtoImage = getIntent().getStringExtra("path");
+
+        findViewById(R.id.serializeBtn)
+                .setOnClickListener(v -> {
+
+                    if(ActivityCompat.checkSelfPermission(this,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                        return;
+                    }
+                    serialize();
+                });
 
 
         //Request  permission
@@ -93,8 +114,38 @@ public class MainMenu extends AppCompatActivity implements Scene.OnUpdateListene
                     }
                 }).check();
 
+
+
         initSceneView();
     }
+
+    private void serialize() {
+
+        if (pathtoImage == null) {
+            Toast.makeText(this, "Can't serialize database cos image is null", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        File file = new File(getExternalFilesDir(null) + "/db.imgdb");
+
+
+        try {
+            FileOutputStream outputStream = new FileOutputStream(file);
+            Bitmap bitmap = BitmapFactory.decodeFile(pathtoImage);
+            augmentedImageDatabase.addImage(String.valueOf(cnt), bitmap);
+            cnt += 1;
+            flag = 1;
+            augmentedImageDatabase.serialize(outputStream);
+            outputStream.close();
+            configSession();
+            textView.setText("Image number " + String.valueOf(cnt - 1) + " saved to Database ");
+            Toast.makeText(this, "Database serialized", Toast.LENGTH_SHORT).show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     private void initSceneView() {
         arView.getScene().addOnUpdateListener(this::onUpdate);
@@ -131,20 +182,29 @@ public class MainMenu extends AppCompatActivity implements Scene.OnUpdateListene
     }
 
     private void configSession() {
-        Config config = new Config(session);
+        config = new Config(session);
         if (!buildDatabase(config)) {
             Toast.makeText(this, "Error database", Toast.LENGTH_SHORT).show();
+        }
+        if (flag == 1) {
+            buildDatabase(config);
         }
         config.setUpdateMode(Config.UpdateMode.LATEST_CAMERA_IMAGE);
         session.configure(config);
     }
 
     private boolean buildDatabase(Config config) {
-        AugmentedImageDatabase augmentedImageDatabase;
+
 
         try {
-            InputStream inputStream = getAssets().open("imageDB.imgdb");
-            augmentedImageDatabase = AugmentedImageDatabase.deserialize(session, inputStream);
+            if (flag == 1) {
+                File file = new File(getExternalFilesDir(null) + "/db.imgdb");
+                FileInputStream dbStream = new FileInputStream(file);
+                augmentedImageDatabase = AugmentedImageDatabase.deserialize(session, dbStream);
+            } else {
+                InputStream inputStream = getAssets().open("imageDB.imgdb");
+                augmentedImageDatabase = AugmentedImageDatabase.deserialize(session, inputStream);
+            }
             config.setAugmentedImageDatabase(augmentedImageDatabase);
             return true;
         } catch (IOException e) {
@@ -189,11 +249,24 @@ public class MainMenu extends AppCompatActivity implements Scene.OnUpdateListene
                             });
                     playVideo (image.createAnchor(image.getCenterPose()), image.getExtentX(), image.getExtentZ());
                     break;
+                } else if (image.getName().equals("0")) {
+                    textView.setText("your 1 image is detected");
+
+                } else if (image.getName().equals("1")) {
+                    textView.setText("your 2 image is detected");
+                } else if (image.getName().equals("2")) {
+                    textView.setText("your 3 image is detected");
+                } else if (image.getName().equals("3")) {
+                    textView.setText("your 4 image is detected");
                 }
 
             }
         }
     }
+
+
+
+
 
     private void playVideo(Anchor anchor, float extentX, float extentZ) {
         mediaPlayer.start();
@@ -239,4 +312,5 @@ public class MainMenu extends AppCompatActivity implements Scene.OnUpdateListene
             session.pause();
         }
     }
+
 }

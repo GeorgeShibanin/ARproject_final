@@ -1,22 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    android:padding="10dp"
+    android:orientation="vertical"
     tools:context=".TakePhotoClass">
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="250dp"
-        android:id="@+id/img_view"/>
 
     <Button
-        android:layout_width="match_parent"
+        android:id="@+id/button_getimage"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:id="@+id/button_getimage"/>
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="55dp"
+        android:onClick="captureImage"
+        android:background="@drawable/btnstyle"
+        android:elevation="15dp"
+        android:text="Take photo" />
+
+    <Button
+        android:id="@+id/displayImage"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="55dp"
+        android:onClick="displayImage"
+        android:background="@drawable/btnstyle"
+        android:elevation="15dp"
+        android:text="Display"
+        />
+
+    <Button
+        android:id="@+id/gotoAr"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="55dp"
+        android:onClick="gotoAR"
+        android:background="@drawable/btnstyle"
+        android:elevation="15dp"
+        android:text="go to AR"
+        />
+
 
 </LinearLayout>
