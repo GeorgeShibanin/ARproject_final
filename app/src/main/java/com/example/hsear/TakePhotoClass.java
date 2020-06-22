@@ -77,9 +77,4 @@ public class TakePhotoClass extends MainMenu {
         return imageFile;
     }
 
-    public void gotoAR(View view) {
-        Intent intent = new Intent(this, MainMenu.class);
-        intent.putExtra("path", currentImagePath);
-        startActivity(intent);
-    }
 }

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:theme="@android:style/Theme.NoTitleBar"
     tools:context=".MainActivity">
 
     <com.google.ar.sceneform.ArSceneView
@@ -28,6 +29,78 @@
         android:background="@drawable/btnstyle"
         android:elevation="15dp"
         android:text="Serialize" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab4"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:fabSize = "mini"
+
+        android:layout_gravity="bottom|right"
+        android:layout_marginEnd="45dp"
+        android:layout_marginBottom="35dp"
+
+        android:src="@drawable/ic_config"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+
+        app:backgroundTint="#9B90F9" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab3"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:fabSize = "mini"
+
+        android:layout_gravity="bottom|right"
+        android:layout_marginEnd="45dp"
+        android:layout_marginBottom="35dp"
+
+        android:src="@drawable/ic_show_img"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+
+        app:backgroundTint="#9B90F9" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab2"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:fabSize = "mini"
+
+        android:layout_gravity="bottom|right"
+        android:layout_marginEnd="45dp"
+        android:layout_marginBottom="35dp"
+
+        android:src="@drawable/ic_take_photo"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+
+        app:backgroundTint="#9B90F9" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab1"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:fabSize = "normal"
+
+        android:layout_gravity="bottom|right"
+        android:layout_marginEnd="45dp"
+        android:layout_marginBottom="25dp"
+
+        android:src="@drawable/ic_add_new"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+
+        app:backgroundTint="#9B90F9" />
 
 
 </FrameLayout>

@@ -2,18 +2,26 @@ package com.example.hsear;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.renderscript.Script;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.ar.core.Anchor;
 import com.google.ar.core.AugmentedImage;
 import com.google.ar.core.AugmentedImageDatabase;
@@ -53,7 +61,7 @@ public class MainMenu extends AppCompatActivity implements Scene.OnUpdateListene
     private ArSceneView arView;
     private Session session;
     private boolean shouldConfigureSession=false;
-    private TextView textView;
+    private TextView textView, textView5;
     private ExternalTexture texture;
     private MediaPlayer mediaPlayer;
     private ModelRenderable videorend;
@@ -61,7 +69,11 @@ public class MainMenu extends AppCompatActivity implements Scene.OnUpdateListene
     int cnt = 0;
     private Config config;
     AugmentedImageDatabase augmentedImageDatabase;
-    String pathtoImage;
+    String currentImagePath = null;
+    private static final int IMAGE_REQUEST = 1;
+    FloatingActionButton fab1, fab2, fab3, fab4;
+    boolean isOpen = false;
+    int isModel = 0;
 
 
     @Override
@@ -79,7 +91,6 @@ public class MainMenu extends AppCompatActivity implements Scene.OnUpdateListene
         mediaPlayer = MediaPlayer.create(this, R.raw.video);
         mediaPlayer.setSurface(texture.getSurface());
         mediaPlayer.setLooping(true);
-        pathtoImage = getIntent().getStringExtra("path");
 
         findViewById(R.id.serializeBtn)
                 .setOnClickListener(v -> {
@@ -92,6 +103,50 @@ public class MainMenu extends AppCompatActivity implements Scene.OnUpdateListene
                     }
                     serialize();
                 });
+
+        fab1 = (FloatingActionButton) findViewById(R.id.fab1);
+        fab2 = (FloatingActionButton) findViewById(R.id.fab2);
+        fab3 = (FloatingActionButton) findViewById(R.id.fab3);
+        fab4 = (FloatingActionButton) findViewById(R.id.fab4);
+
+        fab1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isOpen) {
+                    openMenu();
+                } else {
+                    closeMenu();
+                }
+            }
+        });
+
+        fab2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                captureImage(v);
+            }
+        });
+
+        fab3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainMenu.this, DisplayImage.class);
+                intent.putExtra("image_path", currentImagePath);
+                startActivity(intent);
+
+            }
+        });
+
+        fab4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainMenu.this, ConfigurationClass.class);
+                startActivity(intent);
+            }
+        });
+
+
+
 
 
         //Request  permission
@@ -115,13 +170,59 @@ public class MainMenu extends AppCompatActivity implements Scene.OnUpdateListene
                 }).check();
 
 
-
         initSceneView();
+    }
+
+
+
+    private void openMenu() {
+        isOpen=true;
+        fab2.animate().translationY(-getResources().getDimension(R.dimen.stan_55));
+        fab3.animate().translationY(-getResources().getDimension(R.dimen.stan_105));
+        fab4.animate().translationY(-getResources().getDimension(R.dimen.stan_155));
+    }
+
+    private void closeMenu() {
+        isOpen=false;
+        fab2.animate().translationY(0);
+        fab3.animate().translationY(0);
+        fab4.animate().translationY(0);
+    }
+
+
+    public void captureImage(View view) {
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        if(cameraIntent.resolveActivity(getPackageManager()) != null) {
+            File imageFile = null;
+
+            try {
+                imageFile = getImageFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (imageFile != null) {
+                Uri imageUri = FileProvider.getUriForFile(this, "com.example.hsear.fileprovider", imageFile);
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                startActivityForResult(cameraIntent, IMAGE_REQUEST);
+            }
+        }
+
+    }
+
+    private File getImageFile() throws IOException {
+        String imageName = "jpg_"+"image"+"_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+        File imageFile = File.createTempFile(imageName, ".jpg", storageDir);
+        currentImagePath = imageFile.getAbsolutePath();
+        return imageFile;
     }
 
     private void serialize() {
 
-        if (pathtoImage == null) {
+        if (currentImagePath == null) {
             Toast.makeText(this, "Can't serialize database cos image is null", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -130,14 +231,14 @@ public class MainMenu extends AppCompatActivity implements Scene.OnUpdateListene
 
         try {
             FileOutputStream outputStream = new FileOutputStream(file);
-            Bitmap bitmap = BitmapFactory.decodeFile(pathtoImage);
+            Bitmap bitmap = BitmapFactory.decodeFile(currentImagePath);
             augmentedImageDatabase.addImage(String.valueOf(cnt), bitmap);
             cnt += 1;
             flag = 1;
             augmentedImageDatabase.serialize(outputStream);
             outputStream.close();
             configSession();
-            textView.setText("Image number " + String.valueOf(cnt - 1) + " saved to Database ");
+            textView.setText("Image is saved to Database ");
             Toast.makeText(this, "Database serialized", Toast.LENGTH_SHORT).show();
 
         } catch (IOException e) {
@@ -228,13 +329,27 @@ public class MainMenu extends AppCompatActivity implements Scene.OnUpdateListene
                     MyARNode node = new MyARNode(this, R.raw.pc2_model);
                     node.setImage(image);
                     arView.getScene().addChild(node);
-                    break;
+
+
                 } else if(image.getName().equals("dinoImage.jpg")) {
-                    textView.setText("dino is visible");
-                    MyARNode node = new MyARNode(this, R.raw.dino);
-                    node.setImage(image);
-                    arView.getScene().addChild(node);
-                    break;
+                    if (isModel == 1) {
+                        textView.setText("Dino is visible");
+                        MyARNode node = new MyARNode(this, R.raw.dino);
+                        node.setImage(image);
+                        arView.getScene().addChild(node);
+                    } else if (isModel == 2) {
+                        textView.setText("blade runner is visible");
+                        MyARNode node = new MyARNode(this, R.raw.bladerunner);
+                        node.setImage(image);
+                        arView.getScene().addChild(node);
+                    } else {
+                        textView.setText("blade runner is visible");
+                        MyARNode node = new MyARNode(this, R.raw.bladerunner);
+                        node.setImage(image);
+                        arView.getScene().addChild(node);
+                    }
+
+
                 } else if(image.getName().equals("delorian.jpg")) {
                     textView.setText("Video");
                     ModelRenderable
@@ -248,24 +363,44 @@ public class MainMenu extends AppCompatActivity implements Scene.OnUpdateListene
                                 videorend = modelRenderable;
                             });
                     playVideo (image.createAnchor(image.getCenterPose()), image.getExtentX(), image.getExtentZ());
-                    break;
                 } else if (image.getName().equals("0")) {
                     textView.setText("your 1 image is detected");
+                    MyARNode node = new MyARNode(this, R.raw.dino);
+                    node.setImage(image);
+                    arView.getScene().addChild(node);
 
                 } else if (image.getName().equals("1")) {
                     textView.setText("your 2 image is detected");
+                    MyARNode node = new MyARNode(this, R.raw.bladerunner);
+                    node.setImage(image);
+                    arView.getScene().addChild(node);
+
                 } else if (image.getName().equals("2")) {
                     textView.setText("your 3 image is detected");
+                    ModelRenderable
+                            .builder()
+                            .setSource(this, R.raw.video_screen)
+                            .build()
+                            .thenAccept(modelRenderable -> {
+                                modelRenderable.getMaterial().setExternalTexture("videoTexture", texture);
+                                modelRenderable.getMaterial().setFloat4("keycolor", new Color(0.01843f, 1f,0.098f));
+
+                                videorend = modelRenderable;
+                            });
+                    playVideo (image.createAnchor(image.getCenterPose()), image.getExtentX(), image.getExtentZ());
+
+
                 } else if (image.getName().equals("3")) {
                     textView.setText("your 4 image is detected");
+                    MyARNode node = new MyARNode(this, R.raw.dino);
+                    node.setImage(image);
+                    arView.getScene().addChild(node);
+
                 }
 
             }
         }
     }
-
-
-
 
 
     private void playVideo(Anchor anchor, float extentX, float extentZ) {

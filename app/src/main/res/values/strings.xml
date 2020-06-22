@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">HSEar</string>
+    <string name="fab_content_desc">fab_content_desc</string>
 </resources>

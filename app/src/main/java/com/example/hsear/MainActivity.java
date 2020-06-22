@@ -28,7 +28,7 @@ public class MainActivity extends Activity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, TakePhotoClass.class);
+                Intent intent = new Intent(MainActivity.this, MainMenu.class);
                 startActivity(intent);
             }
         });
@@ -46,7 +46,7 @@ public class MainActivity extends Activity {
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, MainMenu.class);
+                Intent intent = new Intent(MainActivity.this, TakePhotoClass.class);
                 startActivity(intent);
             }
         });
