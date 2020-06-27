@@ -221,14 +221,11 @@ public class MainMenu extends AppCompatActivity implements Scene.OnUpdateListene
     }
 
     private void serialize() {
-
         if (currentImagePath == null) {
             Toast.makeText(this, "Can't serialize database cos image is null", Toast.LENGTH_SHORT).show();
             return;
         }
         File file = new File(getExternalFilesDir(null) + "/db.imgdb");
-
-
         try {
             FileOutputStream outputStream = new FileOutputStream(file);
             Bitmap bitmap = BitmapFactory.decodeFile(currentImagePath);
@@ -240,7 +237,7 @@ public class MainMenu extends AppCompatActivity implements Scene.OnUpdateListene
             configSession();
             textView.setText("Image is saved to Database ");
             Toast.makeText(this, "Database serialized", Toast.LENGTH_SHORT).show();
-
+            
         } catch (IOException e) {
             e.printStackTrace();
         }
