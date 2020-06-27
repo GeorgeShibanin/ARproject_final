@@ -295,8 +295,6 @@ public class MainMenu extends AppCompatActivity implements Scene.OnUpdateListene
     }
 
     private boolean buildDatabase(Config config) {
-
-
         try {
             if (flag == 1) {
                 File file = new File(getExternalFilesDir(null) + "/db.imgdb");
